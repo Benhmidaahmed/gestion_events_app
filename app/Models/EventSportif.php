@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 
 class EventSportif extends Model
 {
@@ -43,13 +44,17 @@ public function categories()
 {
 return $this->morphMany(Comment::class,'commentable');
 }
-public function logo()
+public function logo(): MorphOne
     {
-        return $this->morphOne(Photo::class,'photoable');
+        return $this->morphOne(Photo::class,'photoable')->where('field', 'logo');
     }
 
-    public function poster()
+    public function poster(): MorphOne
     {
-        return $this->morphOne(Photo::class,'photoable');
+        return $this->morphOne(Photo::class,'photoable')->where('field', 'poster');
     }
+    protected $casts = [
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
+    ];
 }

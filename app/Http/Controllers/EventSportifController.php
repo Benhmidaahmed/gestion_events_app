@@ -1,13 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
+use App\Http\Resources\EventSportifResource;
 use App\Models\EventSportif;
-use Illuminate\Http\Request;
 use App\Services\Interfaces\EventSportifServiceInterface;
+use App\Services\EventSportifService;
+use Illuminate\Http\Request;
 
 class EventSportifController extends Controller
 {
+
     public function __construct(public EventSportifServiceInterface $eventSportifService)
     {
     }
@@ -16,26 +20,7 @@ class EventSportifController extends Controller
      */
     public function index()
     {
-        $eventSportifs=$this->eventSportifService->getAllEvents();
-        $data=[
-            //Meta tags: customize for each page -> SEO
-            'title' => $description="My events sportifs",
-            'description' => $description,
-            'heading' => $description,
-            //payload: model
-            'eventSportifs' => $eventSportifs,
-
-
-        ];
-        return view('events.mes-events',$data);//solliciter blades  //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        return EventSportifResource::collection($this->eventSportifService->getAllEvents());
     }
 
     /**
@@ -43,7 +28,11 @@ class EventSportifController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $eventSportif = $this->eventSportifService->createEvent($request->all());
+        return response()->json([
+            'message' => 'Event created successfully',
+            'event' => new EventSportifResource($eventSportif)
+        ], 201);
     }
 
     /**
@@ -51,15 +40,15 @@ class EventSportifController extends Controller
      */
     public function show(EventSportif $eventSportif)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(EventSportif $eventSportif)
-    {
-        //
+        $eventSportif = $this->eventSportifService->getEventById($eventSportif->id);
+        if (!$eventSportif) {
+            return response()->json([
+                'message' => 'Event not found'
+            ], 404);
+        }
+        return response()->json([
+            'event' => new EventSportifResource($eventSportif)
+        ], 200);
     }
 
     /**
@@ -67,7 +56,11 @@ class EventSportifController extends Controller
      */
     public function update(Request $request, EventSportif $eventSportif)
     {
-        //
+        $eventSportif = $this->eventSportifService->updateEvent($eventSportif->id, $request->all());
+        return response()->json([
+            'message' => 'Event updated successfully',
+            'event' => new EventSportifResource($eventSportif)
+        ], 200);
     }
 
     /**
@@ -75,6 +68,9 @@ class EventSportifController extends Controller
      */
     public function destroy(EventSportif $eventSportif)
     {
-        //
+        $this->eventSportifService->deleteEvent($eventSportif->id);
+        return response()->json([
+            'message' => 'Event deleted successfully'
+        ], 200);
     }
 }

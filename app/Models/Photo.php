@@ -9,6 +9,8 @@ class Photo extends Model
 {
     /** @use HasFactory<\Database\Factories\PhotoFactory> */
     use HasFactory;
+    protected $fillable = ['path', 'name', 'size', 'width', 'height','user_id', 'field' ];
+
     public function photoable()
     {
         return $this->morphTo();
